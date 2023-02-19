@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" href="files/logo.png" type="image/icon type">
+    <title>hadsız</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.js"></script>
+  </head>
+  <body id="message-details-body">
+    <div id="app" class="app">
+      <div id="message-details">
+        <span class="close1" id="close1">&times;</span>
+        <h1 id="message-user">{{message.user}}</h1>
+        <p id="message-date">{{ formatDate(message.date) }}</p>
+        <p id="message-text">{{message.text}}</p>
+        <span id="like-count">{{number}} likes</span>
+      </div>
+      <button id="likeBtn">Like</button> 
+    </div>
+
+    <script>
+      window.onload = function() {
+        const messageId = parseInt(localStorage.getItem("messageId"));
+        const userId = localStorage.getItem("username");
+        const message = JSON.parse(localStorage.getItem("message"));
+        const likeBtn = document.getElementById("likeBtn");
+
+        fetch(`http://localhost:3000/api/social/like/isLiked/${messageId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.isLiked) {
+            likeBtn.innerHTML = "Unlike";
+            likeBtn.style.backgroundColor="gray";
+          } else {
+            likeBtn.innerHTML = "Like";
+            likeBtn.style.backgroundColor="#363636";
+          }
+        });
+        
+        fetch('http://localhost:3000/api/auth/check-auth')
+        .then(res => res.json())
+        .then(data => {
+          if (data.message === 'Not authenticated') {
+            console.log('User is not logged in');
+            likeBtn.style.display = "none";
+          } else {
+            console.log(`User is logged in as ${data.username}`);
+            if(likeBtn){
+              likeBtn.addEventListener("click", () => {
+                if (likeBtn.innerText === "Like") {
+                  fetch(`http://localhost:3000/api/social/like/${messageId}`, { method: "POST" })
+                  .then(res => res.json())
+                  .then(data => {
+                    likeBtn.style.backgroundColor = "gray";
+                    likeBtn.innerText = "Unlike";
+                    fetch(`http://localhost:3000/api/social/like/${messageId}`, {
+                    method: "GET"
+                    })
+                    .then(response => response.json())
+                    .then(number => {
+                      localStorage.setItem("number", parseInt(number));
+                    });
+                    location.reload();
+                  });
+                        
+                } else {
+                  fetch(`http://localhost:3000/api/social/like/${messageId}`, { method: "DELETE" })
+                  .then(res => res.json())
+                  .then(data => {
+                    likeBtn.style.backgroundColor = "#363636;";
+                    likeBtn.innerText = "Like";
+                    fetch(`http://localhost:3000/api/social/like/${messageId}`, {
+                    method: "GET"
+                    })
+                    .then(response => response.json())
+                    .then(number => {
+                      localStorage.setItem("number", parseInt(number));
+                    });
+                    location.reload();
+                  });
+                }
+              });
+            } 
+          }
+        })
+        .catch(error => {
+          console.error('Error checking authentication status:', error);
+        });
+
+        const number = parseInt(localStorage.getItem("number"));
+
+        const messageUserId = new Vue({
+          el: "#message-details",
+          data: {
+          message: message,
+          number: number
+          },
+          methods:{
+            formatDate(dateString) {
+              const date = new Date(dateString);
+              const options = { year: 'numeric', month: 'long', day: 'numeric' };
+              return date.toLocaleDateString('en-US', options);
+            }
+          }
+        });
+
+        const closeBtn1 = document.getElementById("close1");
+          if (closeBtn1) {
+            closeBtn1.addEventListener("click", function() {
+              window.history.back(); 
+            });
+          }
+        }
+    </script>
+  </body>
+</html>

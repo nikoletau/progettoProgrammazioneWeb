@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <link rel="icon" href="files/logo.png" type="image/icon type">
+      <title>hadsız</title>
+      <link rel="stylesheet" href="style.css">  
+  </head>
+  <body id="regFormBody" class="patterns pt1">
+    <form id="regForm" action="http://localhost:3000/api/auth/signup" method="post">
+      <span class="close1" id="close1">&times;</span>
+      <h1 id="register">Register:</h1>
+      <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+      <label for="surname">Last name:</label>
+        <input type="text" id="surname" name="surname" required>
+      <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+      <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+      <label for="birth_date">Date of birth:</label>
+        <input type="date" id="birth_date" name="birth_date" required>
+      <label for="location">Location</label>
+        <input type="text" id="location" name="location" required>
+      <label for="bio">About:</label>
+        <br><textarea id="bio" name="bio" cols="127" rows="10" required></textarea>
+      <button type="submit" id="submitBtn"><b>Submit</b></button>  
+    </form>
+    <script>           
+      window.addEventListener('load', function() {
+        const submitBtn = document.getElementById("submitBtn");     
+        const closeBtn1 = document.getElementById("close1");
+        if (closeBtn1) {
+          closeBtn1.addEventListener("click", function() {
+            window.history.back();
+          });
+        }
+        const form = document.querySelector("#regForm");
+        if(form) {
+          form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const name = document.querySelector("#name").value;
+            const surname = document.querySelector("#surname").value;
+            const username = document.querySelector("#username").value;
+            const password = document.querySelector("#password").value;
+            const birth_date = document.querySelector("#birth_date").value;
+            const location = document.querySelector("#location").value;
+            const bio = document.querySelector("#bio").value;
+            const newUsername = localStorage.setItem("newUsername", username);
+            const res = await fetch("http://localhost:3000/api/auth/signup", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                name,
+                surname,
+                username,
+                password,
+                birth_date,
+                location,
+                bio,
+              }),
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.message === "User Already Exist. Please Login") {
+                alert("User Already Exist. Please Login");
+              }
+              else if (data.message === "All the fields has to be filled in"){
+                alert("All the fields has to be filled in");
+              }
+              else if (data.message === 'Sign up completed successfully') {
+                window.location.href = "welcomeSignUp.html";
+              }
+              else {
+                alert("Please try again");
+              }
+            })
+            .catch(error => console.error(error));
+          });
+        } 
+      });
+    </script>       
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" href="files/logo.png" type="image/icon type">
+    <title>hadsız</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body id="videoBody">
+    <video autoplay muted loop id="myVideo">
+      <source src="./files/pexels-cottonbro-5365072 (1).mp4"  type="video/mp4">
+    </video>
+
+    <div>
+      <button id="noLoginBtn" onclick="proceed()">Continue without Log in</button>
+    </div>
+
+    <div>
+      <button id="first_button" onclick="firstBtn()">Start</button>
+    </div>
+    
+    <div>
+      <h1 id="title">hadsız</h1>
+    </div>
+
+    <script>
+      function firstBtn() {
+        window.location.href = "signuporsignin.html";
+      }
+
+      function proceed() {
+        window.location.href = "messages.html";
+      } 
+    </script>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" href="files/logo.png" type="image/icon type">
+    <title>hadsız</title>
+    <link rel="stylesheet" href="style.css"> 
+  </head>
+  <body class="searchBody">
+    <div class="search-container">
+      <form class="search-form">
+        <span class="close1" id="close1">&times;</span>
+        <input class="search-input" type="text" placeholder="Search for users..." required>
+        <button class="search-button">Go</button>
+      </form>
+    </div>
+
+    <script>
+      window.onload = function() {
+        const form = document.querySelector('.search-form');
+        const input = document.querySelector('.search-input');
+
+        form.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const query = input.value;         
+            try {
+              const response = await fetch(`http://localhost:3000/api/social/search?q=${query}`);
+              const users = await response.json();
+              console.log(users);
+              localStorage.setItem("users", JSON.stringify(users)); 
+              window.location.href="listofusers.html";
+            } catch (err) {
+              console.error(err);
+            } 
+        });
+
+        const closeBtn1 = document.getElementById("close1");
+        if (closeBtn1) {
+          closeBtn1.addEventListener("click", function() {
+            window.history.back();
+          });
+        }   
+      }
+    </script> 
+  </body>
+</html>

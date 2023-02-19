@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" href="files/logo.png" type="image/icon type">
+    <title>hadsız</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body id="feed-body">
+    <nav class="navbar">
+      <div class="navbar_container">
+        <a id="navbar_logo"><img src="files/logo.png" id="imageLogo"></a>  
+        <ul class="navbar_menu">
+          <li class="navbar_item">
+            <a href="search.html" class="navbar_links">Search</a>
+          </li>
+          <li class="navbar_item">
+            <a href="signIn.html" class="navbar_links" id="signInNav">Sign in</a>
+          </li>
+          <li class="navbar_item">
+            <a href="signUp.html" class="navbar_links" id="signUpNav">Sign up</a>
+          </li>
+          <li class="navbar_item">
+            <a href="whoami.html" class="navbar_links" id="myProfile">My profile</a>
+          </li>
+          <li class="navbar_item">
+            <a href="newmessage.html" class="navbar_links" id="newMsg">New message</a>
+          </li>
+          <li class="navbar_item">
+            <button id="logout-btn">Sign out</button>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <button id="backListUsers">Back</button>
+
+    <div class="feed">
+      <div class="feed-posts"></div>
+    </div>
+    <p id="noResult"></p>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      window.onload = function() {
+        const username = localStorage.getItem("username");
+        fetch(`http://localhost:3000/api/social/messages/${username}`, {
+          method: "GET"
+        })
+        .then(response => response.json())
+        .then(data => {
+        let messages = data;
+        let feedPosts = document.querySelector(".feed-posts");
+        for (let i = 0; i < messages.length; i++) {
+          let message = messages[i];
+          let post = document.createElement("div");
+          post.classList.add("post");
+
+          let date = new Date(message.date);
+
+          let formattedDate = date.toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          });
+            
+          post.innerHTML = `
+          
+          <p class="post-user">${message.user}</p>
+          <p class="post-date">${formattedDate}</p>
+          <p class="post-content">${message.text}</p>
+          <button id = "msgBtn" data-id="${message._id}" data-user="${message.user}">Read</button>
+          `;
+          feedPosts.appendChild(post);
+        }
+        if(messages.length === 0){
+          noResult.innerHTML="No messages found";
+        }
+
+        });
+
+        const myProfile = document.getElementById("myProfile");
+        const newMsg = document.getElementById("newMsg");
+        const signInNav = document.getElementById("signInNav");
+        const signUpNav = document.getElementById("signUpNav");
+        const logoutBtn = document.getElementById("logout-btn");
+        const logo = document.getElementById("navbar_logo");
+        fetch('http://localhost:3000/api/auth/check-auth')
+        .then(res => res.json())
+        .then(data => {
+          if (data.message === 'Not authenticated') {
+            console.log('User is not logged in');
+            myProfile.style.display = "none";
+            newMsg.style.display = "none";
+            signInNav.style.display ="inline-block";
+            signUpNav.style.display ="inline-block";
+            logoutBtn.style.display = "none";
+            if(logo){
+              logo.addEventListener("click", function(){
+                window.location.href = "messages.html";
+              })
+            }
+          } else {
+            console.log(`User is logged in as ${data.username}`);
+            myProfile.style.display = "inline-block";
+            newMsg.style.display = "inline-block";
+            signInNav.style.display ="none";
+            signUpNav.style.display ="none";
+            logoutBtn.style.display = "inline-block";
+            if(logo){
+              logo.addEventListener("click", function(){
+                window.location.href = "feed.html";
+              })
+            }
+          }
+        })
+        .catch(error => {
+          console.error('Error checking authentication status:', error);
+        });
+
+        if(logoutBtn){
+          logoutBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+            try {
+              const response = await fetch('http://localhost:3000/api/auth/signout', {
+                method: 'POST',
+                credentials: 'include',
+              });
+
+              if (response.ok) {
+                window.location.href = 'index.html';
+              } else {
+                const data = await response.json();
+                console.log(data.message); 
+              }
+            } catch (error) {
+              console.log(error.message);
+            }
+          });
+        }
+
+        const feedPosts = document.querySelector(".feed-posts");
+        feedPosts.addEventListener("click", async (event) => {
+          const target = event.target;
+          if (target.id === "msgBtn") {
+            event.preventDefault();
+            const messageId = target.getAttribute("data-id");
+            const userId = target.getAttribute("data-user");
+            const res = await fetch(`http://localhost:3000/api/social/messages/${userId}/${messageId}`);
+            const message = await res.json();
+            localStorage.setItem("message", JSON.stringify(message));
+            localStorage.setItem("messageId", messageId);
+            window.location.href = `http://localhost:3000/messageUserId.html`;
+
+            fetch(`http://localhost:3000/api/social/like/${messageId}`, {
+              method: "GET"
+            })
+            .then(res => res.json())
+            .then(number => {
+              localStorage.setItem("number", parseInt(number));
+            })
+            .catch(error => {
+              console.error('Error fetching like count:', error);
+            });
+          }
+        });
+
+        const backArrow = document.getElementById("backListUsers");
+        if(backArrow){
+          backArrow.addEventListener("click", function(){
+            window.history.back();   
+          });   
+        }
+      } 
+
+    </script>
+  </body>
+</html>
+
+

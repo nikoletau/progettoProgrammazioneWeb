@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <link rel="icon" href="files/logo.png" type="image/icon type">
+      <title>hadsız</title>
+      <link rel="stylesheet" href="style.css">    
+  </head>
+  <body>
+    <video autoplay muted loop id="myVideo">
+      <source src="./files/pexels-cottonbro-5365072 (1).mp4" type="video/mp4">
+    </video>
+    <div class="popup" id="popup">
+      <div class="popup-content">
+        <span class="close" id="close" onclick="closeBtn()">&times;</span>
+        <div>
+          <h2 id="welcome">Welcome to hadsız</h2>
+          <button id="s_button" onclick="toSignIn()"><b>Sign In</b></button>
+          <button id="s_button" onclick="toSignUp()"><b>Sign Up</b></button>
+        </div>        
+      </div>
+    </div> 
+    <script>
+      function toSignIn(){
+        window.location.href="signIn.html";
+      }
+
+      function toSignUp(){
+        window.location.href="signUp.html";
+      }
+
+      function closeBtn(){
+        window.location.href="index.html";
+      }
+
+    </script>         
+  </body>
+</html>

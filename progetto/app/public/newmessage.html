@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="icon" href="files/logo.png" type="image/icon type">
+    <title>hadsız</title>
+    <link rel="stylesheet" href="style.css">    
+  </head>
+  <body id="newMsgBody">
+    <div id="new-message-form">
+      <h1 id="newMessageTitle">Publish new message</h1>
+      <form id="formNewMsg">
+        <span class="closeSearch" id="closeSearch">&times;</span>
+        <textarea id="new-message-text" required></textarea>
+        <button id="submit-button">Submit</button>
+      </form>
+    </div>        
+    <script>
+      window.onload = function () {
+        const submitBtn = document.getElementById("submit-button");
+        submitBtn.addEventListener("click", function(event) {
+          event.preventDefault();               
+          const text = document.getElementById("new-message-text").value;
+          fetch("http://localhost:3000/api/social/messages", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ text })
+          })
+          .then(response => response.json())
+          .then(message => {
+            console.log("New message created:", message);
+            window.location.href ="messages.html";
+          })
+          .catch(error => {
+            console.error("Error creating message:", error);
+          });
+        });
+      
+        const closeSearch = document.getElementById("closeSearch");
+        if (closeSearch) {
+          closeSearch.addEventListener("click", function() {
+            fetch('http://localhost:3000/api/auth/check-auth')
+            .then(res => res.json())
+            .then(data => {
+              if (data.message === 'Not authenticated') {
+                console.log('User is not logged in');
+                window.location.href = "messages.html";
+              } else {
+                console.log(`User is logged in as ${data.username}`);
+                window.location.href = "feed.html";
+              }
+            })
+            .catch(error => {
+              console.error('Error checking authentication status:', error);
+            });          
+          });
+        }
+
+        fetch('http://localhost:3000/api/auth/check-auth')
+        .then(res => res.json())
+        .then(data => {
+          if (data.message === 'Not authenticated') {
+            console.log('User is not logged in');
+            alert("You have to sign in first.");
+            window.location.href="index.html";
+          } 
+        })
+        .catch(error => {
+          console.error('Error checking authentication status:', error);
+        });
+      }
+    </script>
+  </body>
+</html>
